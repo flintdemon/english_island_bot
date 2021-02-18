@@ -5,7 +5,7 @@ ADD . /build/
 WORKDIR /build
 RUN go get github.com/go-telegram-bot-api/telegram-bot-api
 ENV GO111MODULE=on
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o island_bot .
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o island_bot bot.go
 
 
 # generate clean, final image for end users
