@@ -1,0 +1,15 @@
+stages:
+    - build
+
+build_job:
+    services:
+        - docker:dind
+    image: docker
+    stage: build
+    before_script:
+        - docker login $CI_REGISTRY -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
+    script:
+        - docker pull $CI_REGISTRY/vitaly.vasiliev/english-island-bot:latest || true      
+        - docker build --cache-from $CI_REGISTRY/vitaly.vasiliev/english-island-bot:latest -t $CI_REGISTRY/vitaly.vasiliev/english-island-bot:$CI_BUILD_REF -t $CI_REGISTRY/vitaly.vasiliev/english-island-bot:latest .
+        - docker push $CI_REGISTRY/vitaly.vasiliev/english-island-bot:$CI_BUILD_REF
+        - docker push $CI_REGISTRY/vitaly.vasiliev/english-island-bot:latest
