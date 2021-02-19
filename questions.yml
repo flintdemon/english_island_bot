@@ -1,0 +1,246 @@
+---
+QuestionText: "____ your name?"
+Answers:
+  - "Who’s"
+  - "What’s"
+  - "How’s"
+  - "Why’s"
+RightAnswer: "What’s"
+Points: 1
+
+QuestionText: "___ old are you?"
+Answers:
+  - "Who"
+  - "What"
+  - "How"
+  - "When"
+RightAnswer: "How"
+Points: 1
+
+QuestionText: "Выберите верное"
+Answers:
+  - "I’m 17 years old"
+  - "I’ve 17 years old"
+  - "I are 17 years old"
+  - "I have 17 years old"
+RightAnswer: "I’m 17 years old"
+Points: 1
+
+QuestionText: "Excuse me, ______ speak French?"
+Answers:
+  - "do you"
+  - "you do"
+  - "you"
+RightAnswer: "do you"
+Points: 1
+
+QuestionText: "Give it to ___"
+Answers:
+  - "i"
+  - "he"
+  - "me"
+RightAnswer: "me"
+Points: 1
+
+QuestionText: "Where _____ from?"
+Answers:
+  - "you are"
+  - "you"
+  - "are you"
+RightAnswer: "are you"
+Points: 1
+
+QuestionText: "We have _____ house in Moscow."
+Answers:
+  - "any"
+  - "a"
+  - "an"
+RightAnswer: "a"
+Points: 1
+
+QuestionText: "I work in a _________. I am a doctor."
+Answers:
+  - "hospital"
+  - "hotel"
+  - "supermarket"
+RightAnswer: "hospital"
+Points: 1
+
+QuestionText: "This is my brother. ___ name is Paul."
+Answers:
+  - "Her"
+  - "His"
+  - "He is"
+RightAnswer: "Her"
+Points: 1
+
+QuestionText: "I like apples, but I ______ bananas."
+Answers:
+  - "do not like"
+  - "like"
+  - "do like"
+RightAnswer: "do not like"
+Points: 1
+
+QuestionText: "I usually go to work ___ train."
+Answers:
+  - "on"
+  - "with"
+  - "by"
+RightAnswer: "by"
+Points: 2
+
+QuestionText: "Rosie stayed __ home yesterday afternoon."
+Answers:
+  - "in"
+  - "at"
+  - "to"
+RightAnswer: "at"
+Points: 2
+
+QuestionText: "Last night I ____ to the cinema."
+Answers:
+  - "went"
+  - "did go"
+  - "was"
+RightAnswer: "went"
+Points: 2
+
+QuestionText: "____ were you at the weekend? I was in Scotland."
+Answers:
+  - "When"
+  - "Where"
+  - "What"
+RightAnswer: "Where"
+Points: 2
+
+QuestionText: "I am going to a concert tonight. _____ you like to come?"
+Answers:
+  - "Do"
+  - "Are"
+  - "Would"
+RightAnswer: "Would"
+Points: 2
+
+QuestionText: "Excuse me, how do I _____ to the bus station?"
+Answers:
+  - "come"
+  - "get"
+  - "arrive"
+RightAnswer: "get"
+Points: 2
+
+QuestionText: "Do you sell stamps? Yes, we do. How _____ do you want?"
+Answers:
+  - "any"
+  - "many"
+  - "much"
+RightAnswer: "much"
+Points: 2
+
+QuestionText: "We _____ going to the theatre next Saturday."
+Answers:
+  - "will"
+  - "do"
+  - "are"
+RightAnswer: "are"
+Points: 2
+
+QuestionText: "We paid the restaurant bill ____ credit card."
+Answers:
+  - "to"
+  - "with"
+  - "by"
+  - "on"
+RightAnswer: "by"
+Points: 2
+
+QuestionText: "If you ______ money from a friend, you should always pay it back promptly."
+Answers:
+  - "borrow"
+  - "earn"
+  - "spend"
+  - "lend"
+RightAnswer: "borrow"
+Points: 3
+
+QuestionText: "If the weather _______ bad tomorrow, we can go to a museum."
+Answers:
+  - "will be"
+  - "was"
+  - "is"
+  - "would be"
+RightAnswer: "is"
+Points: 3
+
+QuestionText: "If I _______ closer to my office, I could walk to work."
+Answers:
+  - "lived"
+  - "would live"
+  - "had live"
+  - "live"
+RightAnswer: "lived"
+Points: 3
+
+QuestionText: "I’ve got to be at work in five minutes. Don’t worry, I _____ you a lift if you want."
+Answers:
+  - "give"
+  - "am giving"
+  - "'ll give"
+  - "'m going to give"
+RightAnswer: "'ll give"
+Points: 3
+
+QuestionText: "Julia _____ married since she was 20"
+Answers:
+  - "is"
+  - "was"
+  - "has been"
+  - "is being"
+RightAnswer: "has been"
+Points: 3
+
+QuestionText: "Don’t worry if I ___ late tonight. I’m going to the gym after work."
+Answers:
+  - "am"
+  - "will be"
+  - "would be"
+  - "was"
+RightAnswer: "am"
+Points: 3
+
+QuestionText: "I’ve got a terrible headache, and it won’t go away. Have you tried _____ some aspirin?"
+Answers:
+  - "to take"
+  - "take"
+  - "took"
+  - "taking"
+RightAnswer: "taking"
+Points: 3
+
+QuestionText: "I was wondering _____ I could ask you some questions. Sure, go ahead."
+Answers:
+  - "what"
+  - "if"
+  - "that"
+  - "how"
+RightAnswer: "if"
+Points: 3
+
+QuestionText: "What clothes should I pack for a trip to Boston? Well, it depends _____ the time of year that you go."
+Answers:
+  - "on"
+  - "with"
+  - "up"
+  - "to"
+RightAnswer: "on"
+Points: 3
+
+QuestionText: "I’ve finished this salad and I’m still hungry. I _____ ordered something more filling."
+Answers:
+  - "must"
+  - "would have"
+  - "should have"
+  - "may have"
+RightAnswer: "should have"
+Points: 3
