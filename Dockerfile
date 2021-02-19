@@ -13,5 +13,6 @@ FROM scratch
 COPY --from=builder /build/island_bot .
 
 # executable
+CMD apk add --update --no-cache ca-certificates git
 ENTRYPOINT [ "./island_bot" ]
-RUN apk add --update --no-cache ca-certificates git
+
