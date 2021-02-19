@@ -3,7 +3,7 @@ FROM golang:alpine as builder
 RUN mkdir /build
 ADD bot.go /build/
 WORKDIR /build
-CMD apk add --update --no-cache ca-certificates git
+RUN apk add --update --no-cache ca-certificates git
 ENV GO111MODULE=off
 RUN go get github.com/go-telegram-bot-api/telegram-bot-api 
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o island_bot bot.go
