@@ -3,7 +3,7 @@ FROM golang:latest as builder
 RUN mkdir /build
 ADD . /build/
 WORKDIR /build
-ENV GOPATH=/build
+ENV GO111MODULE=off
 RUN go get github.com/go-telegram-bot-api/telegram-bot-api 
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o island_bot bot.go
 
