@@ -11,6 +11,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o island_bot bot.go
 # generate clean, final image for end users
 FROM scratch
 COPY --from=builder /build/island_bot .
+RUN apk add --update --no-cache ca-certificates git
 
 # executable
 ENTRYPOINT [ "./island_bot" ]
