@@ -9,22 +9,31 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-var keyboard = tgbotapi.NewReplyKeyboard(
+var buttonTouch bool = false
+var userPoint int = 0
+
+var startKeyboard = tgbotapi.NewReplyKeyboard(
 	tgbotapi.NewKeyboardButtonRow(
 		tgbotapi.NewKeyboardButton("😍 Да, с удовольствием"),
 		tgbotapi.NewKeyboardButton("🙄 Хочу узнать больше о школе"),
 	),
 )
 
-//Struct used for questions in english level test
-type Question struct {
-	QuestionText string
-	Answers      []string
-	RightAnswer  string
-	Points       int
+//question struct using for questions in english level test
+type question struct {
+	QuestionText string   `yaml:"QuestionText"`
+	Answers      []string `yaml:"Answers"`
+	RightAnswer  string   `yaml:"RightAnswer"`
+	Points       int      `yaml:"Points"`
 }
 
-func (q *Question) getQuestions() *Question {
+//questionGroup struct contains array of questions
+type questionGroup struct {
+	Questions []question `yaml:"Questions"`
+}
+
+//getQuestions method for import questions
+func (q *questionGroup) getQuestions() *questionGroup {
 	yamlFile, err := ioutil.ReadFile("questions.yml")
 	if err != nil {
 		log.Printf("yamlFile.Get err  #%v ", err)
@@ -36,11 +45,22 @@ func (q *Question) getQuestions() *Question {
 	return q
 }
 
-func main() {
+//getQuestion function gets question by uts number and makes reply keyboard with answers
+func getQuestion(msg *tgbotapi.MessageConfig, questionNumber int) {
+	var questions questionGroup
 
-	var q Question
-	q.getQuestions()
-	log.Println(q.QuestionText)
+	qArray := questions.getQuestions().Questions
+
+	buttons := make([][]tgbotapi.KeyboardButton, len(qArray[questionNumber].Answers))
+	for i, a := range qArray[questionNumber].Answers {
+		buttons[i] = tgbotapi.NewKeyboardButtonRow(tgbotapi.NewKeyboardButton(a))
+	}
+
+	msg.Text = qArray[questionNumber].QuestionText
+	msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(buttons...)
+}
+
+func main() {
 
 	bot, err := tgbotapi.NewBotAPI("1601846360:AAHPRgAazXY-bX-fZI5NAh0ffUWGbPmH0-I")
 	if err != nil {
@@ -59,9 +79,6 @@ func main() {
 		if update.Message == nil {
 			continue
 		}
-		//if !update.Message.IsCommand() { //ignore any non command Messages
-		//	continue
-		//}
 
 		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
 
@@ -69,19 +86,23 @@ func main() {
 
 		switch update.Message.Command() {
 		case "start":
-			msg.Text = "🌴 Привет! Мы школа английского языка English Island!\n\n🔥 С нами ты заговоришь на английском уже с первого занятия которое ты можешь посетить совершенно бесплатно!"
-			msg.ReplyMarkup = keyboard
-		case "info":
-			msg.Text = "Школа иностранных языков\n\n🌴English Island🌴\n\n🔥Это уютная атмосфера, современный подход и уроки с носителями языка.\n\n🔥Забудьте о нудной зубрежке и скучных домашних заданиях.\n\n🔥Приходи к нам в\n🌴English Island School🌴\nИ получи опыт живого языка, на котором действительно говорят."
-		case "test":
-			msg.Text = "Тут будет тест"
+			msg.Text = "🌴 Привет! Мы школа английского языка English Island!\n\n🔥 С нами ты заговоришь на английском уже с первого занятия которое ты можешь посетить совершенно бесплатно!\n\nХочешь прийти на бесплатный урок?"
+			msg.ReplyMarkup = startKeyboard
 		default:
-			msg.Text = "Я не знаю такой команды :("
+			msg.Text = "Напиши /start или нажимай на кнопки внизу."
 		}
 
 		switch update.Message.Text {
 		case "😍 Да, с удовольствием":
-			msg.Text = "Ok"
+			if buttonTouch == false {
+				msg.Text = "🔥 Прежде, чем мы запишем тебя на бесплатный пробный урок, мы предлагаем пройти тест на определение твоего уровня английского! 🔥\n\nЭто нужно для того, чтобы изучение языка было легким и комфортным для тебя.\n\nТест займет не более 10ти минут\nТы готов пройти тест?"
+				buttonTouch = true
+			} else {
+				getQuestion(&msg, 6)
+
+				buttonTouch = false
+			}
+
 		case "🙄 Хочу узнать больше о школе":
 			msg.Text = "Школа иностранных языков\n\n🌴English Island🌴\n\n🔥Это уютная атмосфера, современный подход и уроки с носителями языка.\n\n🔥Забудьте о нудной зубрежке и скучных домашних заданиях.\n\n🔥Приходи к нам в\n🌴English Island School🌴\nИ получи опыт живого языка, на котором действительно говорят."
 		}
