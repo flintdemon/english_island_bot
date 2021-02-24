@@ -10,7 +10,6 @@ import (
 )
 
 var buttonTouch bool = false
-var userPoint int = 0
 
 var startKeyboard = tgbotapi.NewReplyKeyboard(
 	tgbotapi.NewKeyboardButtonRow(
@@ -18,6 +17,17 @@ var startKeyboard = tgbotapi.NewReplyKeyboard(
 		tgbotapi.NewKeyboardButton("🙄 Хочу узнать больше о школе"),
 	),
 )
+
+var endKeyboard = tgbotapi.NewReplyKeyboard(
+	tgbotapi.NewKeyboardButtonRow(
+		tgbotapi.NewKeyboardButtonContact("Отправить номер телефона"),
+	),
+)
+
+type userPoints struct {
+	Points int
+	ChatID int64
+}
 
 //question struct using for questions in english level test
 type question struct {
@@ -60,6 +70,38 @@ func getQuestion(msg *tgbotapi.MessageConfig, questionNumber int) {
 	msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(buttons...)
 }
 
+func getTest(msg *tgbotapi.MessageConfig, bot *tgbotapi.BotAPI, updates tgbotapi.UpdatesChannel, points userPoints) {
+	var questions questionGroup
+	qArray := questions.getQuestions().Questions
+	for i := range qArray {
+		getQuestion(msg, i)
+		if _, err := bot.Send(msg); err != nil {
+			log.Panic(err)
+		}
+		u := <-updates
+		if u.Message.Text == qArray[i].RightAnswer {
+			points.Points += qArray[i].Points
+		}
+		log.Printf("Points: %v\n\n", points.Points)
+
+	}
+	var level string
+	if points.Points < 20 {
+		level = "Elementary"
+	} else if points.Points >= 20 && points.Points < 45 {
+		level = "Intermediate"
+	} else if points.Points >= 45 {
+		level = "Upper Intermediate"
+	}
+	msg.ReplyMarkup = endKeyboard
+	msg.Text = "Твой уровень языка: " + level + "\n\nПоздравляем тебя, ты успешно прошел тест на определение уровня языка🔥\n\n Для того, чтобы мы могли записать тебя на бесплатный урок, тебе надо оставить свой номер телефона 🌴"
+	if _, err := bot.Send(msg); err != nil {
+		log.Panic(err)
+	}
+	buttonTouch = false
+	points.Points = 0
+}
+
 func main() {
 
 	bot, err := tgbotapi.NewBotAPI("1601846360:AAHPRgAazXY-bX-fZI5NAh0ffUWGbPmH0-I")
@@ -92,52 +134,63 @@ func main() {
 					log.Panic(err)
 				}
 			}
-		} else {
-			if update.Message.Text == "😍 Да, с удовольствием" {
-				if buttonTouch == false {
-					msg.Text = "🔥 Прежде, чем мы запишем тебя на бесплатный пробный урок, мы предлагаем пройти тест на определение твоего уровня английского! 🔥\n\nЭто нужно для того, чтобы изучение языка было легким и комфортным для тебя.\n\nТест займет не более 10ти минут\nТы готов пройти тест?"
-					buttonTouch = true
-					if _, err := bot.Send(msg); err != nil {
-						log.Panic(err)
-					}
-				} else {
-					var questions questionGroup
-					qArray := questions.getQuestions().Questions
-					getQuestion(&msg, 0)
-					if _, err := bot.Send(msg); err != nil {
-						log.Panic(err)
-					}
-					for i := range qArray {
-						getQuestion(&msg, i)
-						questionAnswered := false
-						if questionAnswered == true {
-							if _, err := bot.Send(msg); err != nil {
-								log.Panic(err)
-							}
-						} else {
-							for questionAnswered == false {
-
-								for _, v := range qArray[i].Answers {
-									u := <-updates
-									log.Println("Entering for range answers")
-									log.Printf("Answer in for: %v\n\n", v)
-									log.Printf("text in update.Message: %v\n\n", u.Message.Text)
-									if u.Message.Text == v {
-										questionAnswered = true
-									}
-								}
-
-							}
-						}
-					}
-					buttonTouch = false
+		}
+		if update.Message.Text == "😍 Да, с удовольствием" {
+			if buttonTouch == false {
+				msg.Text = "🔥 Прежде, чем мы запишем тебя на бесплатный пробный урок, мы предлагаем пройти тест на определение твоего уровня английского! 🔥\n\nЭто нужно для того, чтобы изучение языка было легким и комфортным для тебя.\n\nТест займет не более 10ти минут\nТы готов пройти тест?"
+				buttonTouch = true
+				if _, err := bot.Send(msg); err != nil {
+					log.Panic(err)
 				}
+			} else {
+				points := userPoints{Points: 0, ChatID: update.Message.Chat.ID}
+				go getTest(&msg, bot, updates, points)
+				// var questions questionGroup
+				// qArray := questions.getQuestions().Questions
+				// for i := range qArray {
+				// 	getQuestion(&msg, i)
+				// 	if _, err := bot.Send(msg); err != nil {
+				// 		log.Panic(err)
+				// 	}
+				// 	u := <-updates
+				// 	if u.Message.Text == qArray[i].RightAnswer {
+				// 		points.Points += qArray[i].Points
+				// 	}
+				// 	log.Printf("Points: %v\n\n", points.Points)
+
+				// }
+				// var level string
+				// if points.Points < 20 {
+				// 	level = "Elementary"
+				// } else if points.Points >= 20 && points.Points < 45 {
+				// 	level = "Intermediate"
+				// } else if points.Points >= 45 {
+				// 	level = "Upper Intermediate"
+				// }
+				// msg.ReplyMarkup = endKeyboard
+				// msg.Text = "Твой уровень языка: " + level + "\n\nПоздравляем тебя, ты успешно прошел тест на определение уровня языка🔥\n\n Для того, чтобы мы могли записать тебя на бесплатный урок, тебе надо оставить свой номер телефона 🌴"
+				// if _, err := bot.Send(msg); err != nil {
+				// 	log.Panic(err)
+				// }
+				// buttonTouch = false
+				// points.Points = 0
 			}
 		}
 
 		if update.Message.Text == "🙄 Хочу узнать больше о школе" {
 			msg.Text = "Школа иностранных языков\n\n🌴English Island🌴\n\n🔥Это уютная атмосфера, современный подход и уроки с носителями языка.\n\n🔥Забудьте о нудной зубрежке и скучных домашних заданиях.\n\n🔥Приходи к нам в\n🌴English Island School🌴\nИ получи опыт живого языка, на котором действительно говорят."
 			if _, err := bot.Send(msg); err != nil {
+				log.Panic(err)
+			}
+		}
+
+		if update.Message.Contact != nil {
+			msgToSchool := tgbotapi.NewMessage(418634811, "Пользователь "+update.Message.Contact.FirstName+" прошел тест и прислал номер телефона:"+update.Message.Contact.PhoneNumber)
+			msg.Text = "Спасибо, наш менеджер свяжется с тобой в ближайшее время. До встречи в English Island School.🔥"
+			if _, err := bot.Send(msg); err != nil {
+				log.Panic(err)
+			}
+			if _, err := bot.Send(msgToSchool); err != nil {
 				log.Panic(err)
 			}
 		}
