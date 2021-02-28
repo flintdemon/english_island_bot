@@ -95,7 +95,7 @@ func makeBot() *tgbotapi.BotAPI {
 		log.Panic(err)
 	}
 
-	bot.Debug = true
+	bot.Debug = false
 
 	log.Printf("Authorized on account %s", bot.Self.UserName)
 
@@ -160,7 +160,6 @@ func main() {
 				log.Panic(err)
 			}
 		} else if update.Message.Text == "😍 Да, давайте начнем тест!" {
-			log.Printf("Current users %v", knownUsers)
 			user := knownUsers[update.Message.Chat.ID]
 			if user.inTest == false {
 				user.inTest = true
@@ -174,7 +173,6 @@ func main() {
 
 			user.currentQuestion++
 			knownUsers[update.Message.Chat.ID] = user
-			log.Printf("User in test: %v", user)
 
 		} else if update.Message.Contact != nil {
 			msgToSchool := tgbotapi.NewMessage(418634811, "Пользователь "+update.Message.Contact.FirstName+" прошел тест и прислал номер телефона:"+update.Message.Contact.PhoneNumber+"\nЕго уровень по результатам теста: "+knownUsers[update.Message.Chat.ID].levelAfterTest)
@@ -189,7 +187,6 @@ func main() {
 			user := knownUsers[update.Message.Chat.ID]
 			if user.inTest == false {
 				//Exit when user not in test
-				log.Println("User not in test")
 				continue
 			}
 			var questions questionsGroup
@@ -208,7 +205,6 @@ func main() {
 				}
 				user.currentQuestion++
 				knownUsers[update.Message.Chat.ID] = user
-				log.Printf("Number of points: %v", user.Points)
 			} else {
 				var level string
 				if user.Points < 20 {

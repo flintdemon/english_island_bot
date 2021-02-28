@@ -3,3 +3,4 @@ version: "3.9"
 services:
   bot:
     image: registry.gitlab.com/vitaly.vasiliev/english-island-bot
+    restart: always
