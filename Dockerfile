@@ -12,6 +12,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -o island_bot bot.go
 
 # generate clean, final image for end users
 FROM scratch
+ENV TELETOKEN=$ISLAND_BOT_TOKEN
 COPY --from=builder /build/island_bot .
 COPY --from=builder /build/questions.yml .
 COPY --from=builder /etc/ssl/cert.pem /etc/ssl/cert.pem

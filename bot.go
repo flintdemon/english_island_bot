@@ -2,15 +2,21 @@ package main
 
 import (
 	"log"
+	"strconv"
 
 	"io/ioutil"
+
+	"os"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"gopkg.in/yaml.v2"
 )
 
-const telegramToken string = "1601846360:AAHPRgAazXY-bX-fZI5NAh0ffUWGbPmH0-I"
+var telegramToken string = os.Getenv("TELETOKEN")
 
+const questionsFile string = "questions.yml"
+
+//Static reply keyboards //////////////////////////////////////////////////////
 var startKeyboard = tgbotapi.NewReplyKeyboard(
 	tgbotapi.NewKeyboardButtonRow(
 		tgbotapi.NewKeyboardButton("😍 Да, с удовольствием"),
@@ -30,6 +36,8 @@ var endKeyboard = tgbotapi.NewReplyKeyboard(
 		tgbotapi.NewKeyboardButtonContact("Отправить номер телефона"),
 	),
 )
+
+////////////////////////////////////////////////////////////////////////////////
 
 type userProfile struct {
 	Points          int
@@ -60,7 +68,7 @@ func userContainsIn(a []userProfile, u userProfile) bool {
 }
 
 func (q *questionsGroup) getQuestions() *questionsGroup {
-	yamlFile, err := ioutil.ReadFile("questions.yml")
+	yamlFile, err := ioutil.ReadFile(questionsFile)
 	if err != nil {
 		log.Printf("yamlFile.Get err  #%v ", err)
 	}
@@ -107,6 +115,11 @@ func main() {
 	var knownUsers map[int64]userProfile
 	var currentUser userProfile
 
+	adminChatID, err := strconv.ParseInt(os.Getenv("ADMIN_CHAT_ID"), 10, 64)
+	if err != nil {
+		log.Panic(err)
+	}
+
 	bot := makeBot()
 
 	ucfg := tgbotapi.NewUpdate(0)
@@ -123,6 +136,7 @@ func main() {
 
 		log.Printf("From: [%s] Message is: %s", update.Message.From.UserName, update.Message.Text)
 
+		//Init user profiles///////////////////////////////////////////////////////
 		if currentUser.ChatID == 0 {
 			currentUser = userProfile{0, update.Message.Chat.ID, false, 0, ""}
 		} else {
@@ -135,6 +149,7 @@ func main() {
 		if knownUsers[update.Message.Chat.ID].ChatID == 0 {
 			knownUsers[update.Message.Chat.ID] = currentUser
 		}
+		////////////////////////////////////////////////////////////////////////////
 
 		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
 
@@ -163,9 +178,10 @@ func main() {
 			user := knownUsers[update.Message.Chat.ID]
 			if user.inTest == false {
 				user.inTest = true
-				user.Points = 0 //If test completed several times
+				user.Points = 0          //If he want to complete test several times, because session stored while bot is live
+				user.currentQuestion = 0 //And it's also important
 			}
-			qMsg := getQuestion(user.ChatID, user.currentQuestion)
+			qMsg := getQuestion(user.ChatID, user.currentQuestion) //Get first question and waiting for the responce
 
 			if _, err := bot.Send(qMsg); err != nil {
 				log.Panic(err)
@@ -175,7 +191,7 @@ func main() {
 			knownUsers[update.Message.Chat.ID] = user
 
 		} else if update.Message.Contact != nil {
-			msgToSchool := tgbotapi.NewMessage(418634811, "Пользователь "+update.Message.Contact.FirstName+" прошел тест и прислал номер телефона:"+update.Message.Contact.PhoneNumber+"\nЕго уровень по результатам теста: "+knownUsers[update.Message.Chat.ID].levelAfterTest)
+			msgToSchool := tgbotapi.NewMessage(adminChatID, "Пользователь "+update.Message.Contact.FirstName+" прошел тест и прислал номер телефона:"+update.Message.Contact.PhoneNumber+"\nЕго уровень по результатам теста: "+knownUsers[update.Message.Chat.ID].levelAfterTest)
 			msg.Text = "Спасибо, наш менеджер свяжется с тобой в ближайшее время. До встречи в English Island School.🔥 \n P.S. нажми /start если хочешь начать заново"
 			if _, err := bot.Send(msg); err != nil {
 				log.Panic(err)
@@ -183,10 +199,10 @@ func main() {
 			if _, err := bot.Send(msgToSchool); err != nil {
 				log.Panic(err)
 			}
-		} else {
+		} else { //All questions after the first one processed here
 			user := knownUsers[update.Message.Chat.ID]
 			if user.inTest == false {
-				//Exit when user not in test
+				//Ignore messages when user not in test
 				continue
 			}
 			var questions questionsGroup
