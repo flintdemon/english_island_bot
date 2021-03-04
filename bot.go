@@ -79,11 +79,7 @@ func (q *questionsGroup) getQuestions() *questionsGroup {
 	return q
 }
 
-func getQuestion(chatID int64, questionNumber int) tgbotapi.MessageConfig {
-
-	var questions questionsGroup
-
-	qArray := questions.getQuestions().Questions
+func getQuestion(chatID int64, questionNumber int, qArray []question) tgbotapi.MessageConfig {
 
 	buttons := make([][]tgbotapi.KeyboardButton, len(qArray[questionNumber].Answers))
 	for i, a := range qArray[questionNumber].Answers {
@@ -114,6 +110,10 @@ func main() {
 
 	var knownUsers map[int64]userProfile
 	var currentUser userProfile
+
+	var questions questionsGroup
+
+	qArray := questions.getQuestions().Questions
 
 	adminChatID, err := strconv.ParseInt(os.Getenv("ADMIN_CHAT_ID"), 10, 64)
 	if err != nil {
@@ -181,7 +181,7 @@ func main() {
 				user.Points = 0          //If he want to complete test several times, because session stored while bot is live
 				user.currentQuestion = 0 //And it's also important
 			}
-			qMsg := getQuestion(user.ChatID, user.currentQuestion) //Get first question and waiting for the responce
+			qMsg := getQuestion(user.ChatID, user.currentQuestion, qArray) //Get first question and waiting for the responce
 
 			if _, err := bot.Send(qMsg); err != nil {
 				log.Panic(err)
@@ -205,8 +205,6 @@ func main() {
 				//Ignore messages when user not in test
 				continue
 			}
-			var questions questionsGroup
-			qArray := questions.getQuestions().Questions
 			numOfQuestions := len(qArray)
 
 			if user.currentQuestion < numOfQuestions {
@@ -215,7 +213,7 @@ func main() {
 					user.Points += question.Points
 				}
 
-				qMsg := getQuestion(user.ChatID, user.currentQuestion)
+				qMsg := getQuestion(user.ChatID, user.currentQuestion, qArray)
 				if _, err := bot.Send(qMsg); err != nil {
 					log.Panic(err)
 				}
