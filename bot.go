@@ -179,8 +179,6 @@ func main() {
 			if _, err := bot.Send(qMsg); err != nil {
 				log.Panic(err)
 			}
-
-			user.currentQuestion++
 			knownUsers[update.Message.Chat.ID] = user
 
 		} else if update.Message.Contact != nil {
@@ -200,17 +198,19 @@ func main() {
 			}
 			numOfQuestions := len(qArray)
 
-			if user.currentQuestion < numOfQuestions {
-				question := qArray[user.currentQuestion-1] //Because we are reading answers of the previous question
+			if user.currentQuestion < numOfQuestions-1 {
+				question := qArray[user.currentQuestion] //Because we are reading answers of the previous question
 				if question.RightAnswer == update.Message.Text {
 					user.Points += question.Points
 				}
+
+				user.currentQuestion++
 
 				qMsg := getQuestion(user.ChatID, user.currentQuestion, qArray)
 				if _, err := bot.Send(qMsg); err != nil {
 					log.Panic(err)
 				}
-				user.currentQuestion++
+
 				knownUsers[update.Message.Chat.ID] = user
 			} else {
 				var level string
