@@ -1,3 +1,6 @@
+//1. Get user from map out of the for circle. Function getUser that recieved map knownUsers and returned new user or existing user from the map
+//2. continue in if's replacing else if
+
 package main
 
 import (
@@ -108,8 +111,7 @@ func makeBot() *tgbotapi.BotAPI {
 
 func main() {
 
-	var knownUsers map[int64]userProfile
-	var currentUser userProfile
+	knownUsers := make(map[int64]userProfile)
 
 	var questions questionsGroup
 
@@ -137,17 +139,8 @@ func main() {
 		log.Printf("From: [%s] Message is: %s", update.Message.From.UserName, update.Message.Text)
 
 		//Init user profiles///////////////////////////////////////////////////////
-		if currentUser.ChatID == 0 {
-			currentUser = userProfile{0, update.Message.Chat.ID, false, 0, ""}
-		} else {
-			currentUser.ChatID = update.Message.Chat.ID
-		}
-
-		if knownUsers == nil {
-			knownUsers = make(map[int64]userProfile)
-		}
 		if knownUsers[update.Message.Chat.ID].ChatID == 0 {
-			knownUsers[update.Message.Chat.ID] = currentUser
+			knownUsers[update.Message.Chat.ID] = userProfile{0, update.Message.Chat.ID, false, 0, ""}
 		}
 		////////////////////////////////////////////////////////////////////////////
 
