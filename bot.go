@@ -1,6 +1,3 @@
-//1. Get user from map out of the for circle. Function getUser that recieved map knownUsers and returned new user or existing user from the map
-//2. continue in if's replacing else if
-
 package main
 
 import (
@@ -61,15 +58,6 @@ type questionsGroup struct {
 	Questions []question `yaml:"Questions"`
 }
 
-func userContainsIn(a []userProfile, u userProfile) bool {
-	for _, n := range a {
-		if u.ChatID == n.ChatID {
-			return true
-		}
-	}
-	return false
-}
-
 func (q *questionsGroup) getQuestions() *questionsGroup {
 	yamlFile, err := ioutil.ReadFile(questionsFile)
 	if err != nil {
@@ -116,6 +104,7 @@ func main() {
 	var questions questionsGroup
 
 	qArray := questions.getQuestions().Questions
+	numOfQuestions := len(qArray)
 
 	adminChatID, err := strconv.ParseInt(os.Getenv("ADMIN_CHAT_ID"), 10, 64)
 	if err != nil {
@@ -196,10 +185,8 @@ func main() {
 				//Ignore messages when user not in test
 				continue
 			}
-			numOfQuestions := len(qArray)
-
 			if user.currentQuestion < numOfQuestions-1 {
-				question := qArray[user.currentQuestion] //Because we are reading answers of the previous question
+				question := qArray[user.currentQuestion]
 				if question.RightAnswer == update.Message.Text {
 					user.Points += question.Points
 				}
