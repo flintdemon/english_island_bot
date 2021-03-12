@@ -177,10 +177,10 @@ func main() {
 		if update.Message.Text == "😍 Да, давайте начнем тест!" {
 			if user.inTest == false {
 				user.inTest = true
-				user.Points = 0          //If he want to complete test several times, because session stored while bot is live
+				user.Points = 0          //If he wants to complete the test several times, because user session is stored while bot is alive
 				user.currentQuestion = 0 //And it's also important
 			}
-			qMsg := getQuestion(user.ChatID, user.currentQuestion, qArray) //Get first question and waiting for the responce
+			qMsg := getQuestion(user.ChatID, user.currentQuestion, qArray) //Get the first question and waiting for the responce
 
 			if _, err := bot.Send(qMsg); err != nil {
 				log.Panic(err)
