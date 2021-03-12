@@ -3,7 +3,7 @@ stages:
     - build
 
 test_job:
-    image: golang:alpine3.13
+    image: golang
     stage: test
     script:
         - go test
