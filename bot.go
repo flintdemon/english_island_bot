@@ -131,6 +131,7 @@ func main() {
 		if knownUsers[update.Message.Chat.ID].ChatID == 0 {
 			knownUsers[update.Message.Chat.ID] = userProfile{0, update.Message.Chat.ID, false, 0, ""}
 		}
+		user := knownUsers[update.Message.Chat.ID]
 		////////////////////////////////////////////////////////////////////////////
 
 		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
@@ -143,6 +144,19 @@ func main() {
 					log.Panic(err)
 				}
 			}
+			continue
+		}
+
+		if update.Message.Contact != nil {
+			msgToSchool := tgbotapi.NewMessage(adminChatID, "Пользователь "+update.Message.Contact.FirstName+" прошел тест и прислал номер телефона:"+update.Message.Contact.PhoneNumber+"\nЕго уровень по результатам теста: "+knownUsers[update.Message.Chat.ID].levelAfterTest)
+			msg.Text = "Спасибо, наш менеджер свяжется с тобой в ближайшее время. До встречи в English Island School.🔥 \n P.S. нажми /start если хочешь начать заново"
+			if _, err := bot.Send(msg); err != nil {
+				log.Panic(err)
+			}
+			if _, err := bot.Send(msgToSchool); err != nil {
+				log.Panic(err)
+			}
+			continue
 		}
 
 		if update.Message.Text == "😍 Да, с удовольствием" {
@@ -151,13 +165,16 @@ func main() {
 			if _, err := bot.Send(msg); err != nil {
 				log.Panic(err)
 			}
-		} else if update.Message.Text == "🙄 Хочу узнать больше о школе" {
+			continue
+		}
+		if update.Message.Text == "🙄 Хочу узнать больше о школе" {
 			msg.Text = "Школа иностранных языков\n\n🌴English Island🌴\n\n🔥Это уютная атмосфера, современный подход и уроки с носителями языка.\n\n🔥Забудьте о нудной зубрежке и скучных домашних заданиях.\n\n🔥Приходи к нам в\n🌴English Island School🌴\nИ получи опыт живого языка, на котором действительно говорят."
 			if _, err := bot.Send(msg); err != nil {
 				log.Panic(err)
 			}
-		} else if update.Message.Text == "😍 Да, давайте начнем тест!" {
-			user := knownUsers[update.Message.Chat.ID]
+			continue
+		}
+		if update.Message.Text == "😍 Да, давайте начнем тест!" {
 			if user.inTest == false {
 				user.inTest = true
 				user.Points = 0          //If he want to complete test several times, because session stored while bot is live
@@ -169,55 +186,45 @@ func main() {
 				log.Panic(err)
 			}
 			knownUsers[update.Message.Chat.ID] = user
+			continue
+		}
+		//All questions of the test after the first one processed here
+		if user.inTest == false {
+			//Ignore messages when user not in test
+			continue
+		}
+		if user.currentQuestion < numOfQuestions-1 {
+			question := qArray[user.currentQuestion]
+			if question.RightAnswer == update.Message.Text {
+				user.Points += question.Points
+			}
 
-		} else if update.Message.Contact != nil {
-			msgToSchool := tgbotapi.NewMessage(adminChatID, "Пользователь "+update.Message.Contact.FirstName+" прошел тест и прислал номер телефона:"+update.Message.Contact.PhoneNumber+"\nЕго уровень по результатам теста: "+knownUsers[update.Message.Chat.ID].levelAfterTest)
-			msg.Text = "Спасибо, наш менеджер свяжется с тобой в ближайшее время. До встречи в English Island School.🔥 \n P.S. нажми /start если хочешь начать заново"
+			user.currentQuestion++
+
+			qMsg := getQuestion(user.ChatID, user.currentQuestion, qArray)
+			if _, err := bot.Send(qMsg); err != nil {
+				log.Panic(err)
+			}
+
+			knownUsers[update.Message.Chat.ID] = user
+		} else {
+			var level string
+			if user.Points < 20 {
+				level = "Elementary"
+			} else if user.Points >= 20 && user.Points < 45 {
+				level = "Intermediate"
+			} else if user.Points >= 45 {
+				level = "Upper Intermediate"
+			}
+			user.levelAfterTest = level
+			user.inTest = false
+			knownUsers[update.Message.Chat.ID] = user
+			msg.ReplyMarkup = contactKeyboard
+			msg.Text = "Твой уровень языка: " + level + "\n\nПоздравляем тебя, ты успешно прошел тест на определение уровня языка🔥\n\n Для того, чтобы мы могли записать тебя на бесплатный урок, тебе надо оставить свой номер телефона 🌴"
 			if _, err := bot.Send(msg); err != nil {
 				log.Panic(err)
 			}
-			if _, err := bot.Send(msgToSchool); err != nil {
-				log.Panic(err)
-			}
-		} else { //All questions after the first one processed here
-			user := knownUsers[update.Message.Chat.ID]
-			if user.inTest == false {
-				//Ignore messages when user not in test
-				continue
-			}
-			if user.currentQuestion < numOfQuestions-1 {
-				question := qArray[user.currentQuestion]
-				if question.RightAnswer == update.Message.Text {
-					user.Points += question.Points
-				}
-
-				user.currentQuestion++
-
-				qMsg := getQuestion(user.ChatID, user.currentQuestion, qArray)
-				if _, err := bot.Send(qMsg); err != nil {
-					log.Panic(err)
-				}
-
-				knownUsers[update.Message.Chat.ID] = user
-			} else {
-				var level string
-				if user.Points < 20 {
-					level = "Elementary"
-				} else if user.Points >= 20 && user.Points < 45 {
-					level = "Intermediate"
-				} else if user.Points >= 45 {
-					level = "Upper Intermediate"
-				}
-				user.levelAfterTest = level
-				user.inTest = false
-				knownUsers[update.Message.Chat.ID] = user
-				msg.ReplyMarkup = contactKeyboard
-				msg.Text = "Твой уровень языка: " + level + "\n\nПоздравляем тебя, ты успешно прошел тест на определение уровня языка🔥\n\n Для того, чтобы мы могли записать тебя на бесплатный урок, тебе надо оставить свой номер телефона 🌴"
-				if _, err := bot.Send(msg); err != nil {
-					log.Panic(err)
-				}
-			}
-
 		}
+
 	}
 }
