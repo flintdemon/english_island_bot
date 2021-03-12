@@ -6,6 +6,7 @@ test_job:
     image: golang
     stage: test
     script:
+        - export TELETOKEN=$TOKEN
         - go test
     
 build_job:
