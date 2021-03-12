@@ -31,7 +31,7 @@ var startTestKeyboard = tgbotapi.NewReplyKeyboard(
 	),
 )
 
-var endKeyboard = tgbotapi.NewReplyKeyboard(
+var contactKeyboard = tgbotapi.NewReplyKeyboard(
 	tgbotapi.NewKeyboardButtonRow(
 		tgbotapi.NewKeyboardButtonContact("Отправить номер телефона"),
 	),
@@ -211,7 +211,7 @@ func main() {
 				user.levelAfterTest = level
 				user.inTest = false
 				knownUsers[update.Message.Chat.ID] = user
-				msg.ReplyMarkup = endKeyboard
+				msg.ReplyMarkup = contactKeyboard
 				msg.Text = "Твой уровень языка: " + level + "\n\nПоздравляем тебя, ты успешно прошел тест на определение уровня языка🔥\n\n Для того, чтобы мы могли записать тебя на бесплатный урок, тебе надо оставить свой номер телефона 🌴"
 				if _, err := bot.Send(msg); err != nil {
 					log.Panic(err)

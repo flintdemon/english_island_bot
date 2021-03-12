@@ -1,6 +1,13 @@
 stages:
+    - test
     - build
 
+test_job:
+    image: golang:alpine3.13
+    stage: test
+    script:
+        - go test
+    
 build_job:
     services:
         - docker:dind
