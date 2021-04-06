@@ -72,13 +72,13 @@ func (q *questionsGroup) getQuestions() *questionsGroup {
 
 func getQuestion(chatID int64, questionNumber int, qArray *[]question) tgbotapi.MessageConfig {
 
-	buttons := make([][]tgbotapi.KeyboardButton, len(qArray[questionNumber].Answers))
-	for i, a := range qArray[questionNumber].Answers {
+	buttons := make([][]tgbotapi.KeyboardButton, len(&qArray[questionNumber].Answers))
+	for i, a := range &qArray[questionNumber].Answers {
 		buttons[i] = tgbotapi.NewKeyboardButtonRow(tgbotapi.NewKeyboardButton(a))
 	}
 
 	msg := tgbotapi.NewMessage(chatID, "")
-	msg.Text = qArray[questionNumber].QuestionText
+	msg.Text = &qArray[questionNumber].QuestionText
 	msg.ReplyMarkup = tgbotapi.NewReplyKeyboard(buttons...)
 
 	return msg
