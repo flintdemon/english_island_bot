@@ -70,7 +70,7 @@ func (q *questionsGroup) getQuestions() *questionsGroup {
 	return q
 }
 
-func getQuestion(chatID int64, questionNumber int, *qArray []question) tgbotapi.MessageConfig {
+func getQuestion(chatID int64, questionNumber int, qArray *[]question) tgbotapi.MessageConfig {
 
 	buttons := make([][]tgbotapi.KeyboardButton, len(qArray[questionNumber].Answers))
 	for i, a := range qArray[questionNumber].Answers {
