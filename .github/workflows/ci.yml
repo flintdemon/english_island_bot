@@ -1,0 +1,39 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+
+    env:
+      TELETOKEN: ${{ secrets.TELETOKEN }} 
+      ADMIN_CHAT_ID: ${{ secrets.ADMIN_CHAT_ID }} 
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.22 
+
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/go-build
+          key: go-mod-${{ runner.os }}-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            go-mod-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: go mod tidy
+
+      - name: Run unit tests
+        run: go test -v
+
+      - name: Build Docker image
+        run: |
+          docker build -t dummy.org/telegram-bot:latest .
